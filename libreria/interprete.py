@@ -6,7 +6,7 @@ Intérprete: convierte lo que escribe el usuario en filtros + consulta semántic
         → min_paginas = 300
         → excluir = ["romántica"]
 
-Funciona con reglas (rápido, sin internet, sin Ollama) en español, inglés y francés.
+Funciona con reglas (rápido, sin internet, sin Ollama) en español, inglés, francés y alemán.
 Ollama es opcional: solo completa lo que las reglas no han entendido.
 """
 
@@ -38,9 +38,9 @@ def _normalizar(texto):
 def _hay_negacion_antes(texto_norm, inicio):
     """¿Hay una negación en la misma frase, justo antes de 'inicio'?"""
     antes = texto_norm[:inicio]
-    # La frase empieza tras el último signo de puntuación o 'pero' / 'but' / 'mais'
+    # La frase empieza tras el último signo de puntuación o 'pero' / 'but' / 'mais' / 'aber'
     corte = max(antes.rfind(","), antes.rfind("."), antes.rfind(";"),
-                antes.rfind(" pero "), antes.rfind(" but "), antes.rfind(" mais "))
+                antes.rfind(" pero "), antes.rfind(" but "), antes.rfind(" mais "), antes.rfind(" aber "))
     frase = antes[corte + 1:]
     return re.search(_NEGACIONES, frase) is not None
 
@@ -48,7 +48,8 @@ def _hay_negacion_antes(texto_norm, inicio):
 _NEGACIONES = (
     r"\b(?:no|ni|nada"                                 # español
     r"|not|don't|dont|doesn't|isn't|isnt|aren't|wasn't|won't|nothing|never"  # inglés
-    r"|ne|n'|pas|rien|jamais)\b|\bn'"                  # francés
+    r"|ne|n'|pas|rien|jamais"                          # francés
+    r"|nicht|kein|keine|keinen|keiner|keines|nichts|nie)\b|\bn'"  # alemán
 )
 
 
@@ -77,7 +78,7 @@ class _Texto:
 # PÁGINAS
 # --------------------------------------------------
 
-_PAG = r"(?:pages|p(?:aginas|ags?\.?)|pp\.?)(?![a-z])"
+_PAG = r"(?:pages|seiten|p(?:aginas|ags?\.?)|pp\.?)(?![a-z])"
 _NUM = r"(\d+)"
 
 _COMPARADORES_ANTES = {
@@ -94,8 +95,13 @@ _COMPARADORES_ANTES = {
     # francés
     "moins de": "max", "au plus": "max", "au maximum": "max", "jusqu'a": "max", "pas plus de": "max",
     "plus de": "min", "au moins": "min", "au minimum": "min", "pas moins de": "min",
+    # alemán (sin diéresis: el texto se normaliza, "höchstens" → "hochstens")
+    "weniger als": "max", "hochstens": "max", "maximal": "max", "bis zu": "max", "unter": "max",
+    "nicht mehr als": "max",
+    "mehr als": "min", "uber": "min", "mindestens": "min", "wenigstens": "min",
+    "nicht weniger als": "min",
 }
-_PREFIJOS_NEGADOS = ("no ", "not ", "pas ")
+_PREFIJOS_NEGADOS = ("no ", "not ", "pas ", "nicht ")
 _COMPARADORES_DESPUES = {
     "o menos": "max", "como maximo": "max", "maximo": "max", "como mucho": "max",
     "o mas": "min", "como minimo": "min", "minimo": "min",
@@ -103,6 +109,8 @@ _COMPARADORES_DESPUES = {
     "or more": "min", "at least": "min", "minimum": "min", "min": "min",
     "ou moins": "max", "au plus": "max", "au maximum": "max",
     "ou plus": "min", "au moins": "min", "au minimum": "min",
+    "oder weniger": "max", "hochstens": "max", "maximal": "max",
+    "oder mehr": "min", "mindestens": "min",
 }
 
 
@@ -118,7 +126,7 @@ def _invertir(tipo):
 def _extraer_paginas(t, pref):
 
     # 1) "entre 200 y 400 páginas"
-    for m in t.buscar(rf"(?:entre|between)\s+{_NUM}\s+(?:y|and|et)\s+{_NUM}\s+{_PAG}"):
+    for m in t.buscar(rf"(?:entre|between|zwischen)\s+{_NUM}\s+(?:y|and|et|und)\s+{_NUM}\s+{_PAG}"):
         a, b = sorted([int(m.group(1)), int(m.group(2))])
         pref["min_paginas"], pref["max_paginas"] = a, b
         t.consumir(m.start(), m.end())
@@ -172,6 +180,10 @@ def _extraer_rating(t, pref):
         r"(?:au moins|minimum|plus de)\s+(\d(?:[.,]\d+)?)\s*(?:etoiles?|de note)",
         r"(\d(?:[.,]\d+)?)\s*etoiles?\s+ou\s+plus",
         r"note\s+(?:minimale\s+)?(?:de\s+|d'au moins\s+|d'|superieure a\s+)?(\d(?:[.,]\d+)?)",
+        # alemán: "mindestens 4 Sterne", "4 Sterne oder mehr", "Bewertung von mindestens 4"
+        r"(?:mindestens|wenigstens|mehr als|uber)\s+(\d(?:[.,]\d+)?)\s*(?:sternen?|punkte)",
+        r"(\d(?:[.,]\d+)?)\s*sternen?\s+oder\s+mehr",
+        r"bewertung\s+(?:von\s+)?(?:mindestens\s+|uber\s+|mehr als\s+)?(\d(?:[.,]\d+)?)",
     ]
     for patron in patrones:
         for m in t.buscar(patron):
@@ -186,22 +198,25 @@ def _extraer_rating(t, pref):
 # --------------------------------------------------
 
 _CORTO = (
-    r"\b(?:muy\s+|very\s+|tres\s+)?(?:cortit[oa]s?|cort[oa]s?|breves?|ligerit[oa]s?|liger[oa]s?|"
+    r"\b(?:muy\s+|very\s+|tres\s+|sehr\s+)?(?:cortit[oa]s?|cort[oa]s?|breves?|ligerit[oa]s?|liger[oa]s?|"
     r"rapido de leer|que se lea rapido"
     r"|short|brief|quick read|light read|easy to finish"
-    r"|courts?|courtes?|legers?|legeres?|rapide a lire)\b"
+    r"|courts?|courtes?|legers?|legeres?|rapide a lire"
+    r"|kurz(?:e[snrm]?)?|dunn(?:e[snrm]?)?|schnell (?:zu lesen|gelesen))\b"
 )
 _LARGO = (
-    r"\b(?:muy\s+|demasiado\s+|too\s+|very\s+|trop\s+|tres\s+)?(?:tochos?|larg[oa]s?|extens[oa]s?|"
+    r"\b(?:muy\s+|demasiado\s+|too\s+|very\s+|trop\s+|tres\s+|zu\s+|sehr\s+)?(?:tochos?|larg[oa]s?|extens[oa]s?|"
     r"gord[oa]s?|pesad[oa]s?"
     r"|long|lengthy|chunky|thick|doorstopper"
-    r"|longs?|longues?|paves?|epais|epaisses?)\b"
+    r"|longs?|longues?|paves?|epais|epaisses?"
+    r"|lang(?:e[snrm]?)?|dick(?:e[snrm]?)?|walzer)\b"
 )
 _BIEN_VALORADO = (
     r"\b(?:muy\s+)?(?:bien valorad[oa]s?|buenas (?:criticas|resenas|valoraciones)|"
     r"muy valorad[oa]s?|bien puntuad[oa]s?|con buena nota"
     r"|highly rated|well rated|top rated|well reviewed|good reviews"
-    r"|(?:tres )?bien notes?|bonnes critiques|bien critiques?)\b"
+    r"|(?:tres )?bien notes?|bonnes critiques|bien critiques?"
+    r"|(?:sehr )?(?:gut|hoch) bewertet(?:e[snrm]?)?|gute (?:bewertungen|kritiken|rezensionen))\b"
 )
 
 
@@ -217,7 +232,8 @@ def _extraer_vagas(t, pref):
 
     for m in t.buscar(_LARGO):
         cerca = t.norm[max(0, m.start() - 8):m.end() + 6]
-        if "a lo largo" in cerca or "long ago" in cerca or "all day long" in cerca or "long time" in cerca:
+        if any(f in cerca for f in ("a lo largo", "long ago", "all day long", "long time",
+                                    "seit lange", "lange zeit", "langer zeit", "so lange")):
             continue  # "a lo largo de la historia" / "long ago" no hablan de páginas
         negado = _hay_negacion_antes(t.norm, m.start())
         if negado and pref["max_paginas"] is None:
@@ -245,23 +261,27 @@ _INICIO_EXCLUSION = (
     r"|(?:that|which) (?:is|are)(?:n't| not)(?: about)?|not about|nothing(?: about)?|without"
     r"|(?:i )?(?:don't|dont|do not) (?:want|like)(?: any)?|no more"
     # francés
-    r"|qui ne (?:soit|soient) pas|(?:je )?ne veux pas(?: de| d')?|pas de|pas d'|rien de|sans)\s+"
+    r"|qui ne (?:soit|soient) pas|(?:je )?ne veux pas(?: de| d')?|pas de|pas d'|rien de|sans"
+    # alemán
+    r"|(?:ich (?:will|mochte|mag) )?(?:bitte )?kein(?:e|en|er|es)?(?: bucher uber| romane uber)?"
+    r"|nichts (?:mit|uber|von)|nicht uber|ohne)\s+"
 )
 _ARTICULOS = (
     r"^(?:(?:un|una|unos|unas|el|la|los|las|de|del|nada de|libros? de|novelas? de"
     r"|a|an|the|any|books? about|novels? about"
-    r"|le|la|les|une|des|du|de la|livres? de|romans? de|d')\s*)+"
+    r"|le|la|les|une|des|du|de la|livres? de|romans? de|d'"
+    r"|der|die|das|den|dem|ein|eine|einen|etwas)\s*)+"
 )
 
 
 def _extraer_exclusiones(t, pref):
 
-    patron = r"\b" + _INICIO_EXCLUSION + r"([^,.;]+?)(?=[,.;]| pero | y que | y con | y de | but | and | mais | et |$)"
+    patron = r"\b" + _INICIO_EXCLUSION + r"([^,.;]+?)(?=[,.;]| pero | y que | y con | y de | but | and | mais | et | aber | und |$)"
     for m in t.buscar(patron):
         inicio_grupo = m.start(1)
         fragmento = t.restante()[inicio_grupo:m.end(1)]
         # "que no sea romance ni fantasía" → dos exclusiones
-        for trozo in re.split(r"\s+(?:ni|o|or|nor|ou)\s+", fragmento, flags=re.IGNORECASE):
+        for trozo in re.split(r"\s+(?:ni|o|or|nor|ou|oder|noch)\s+", fragmento, flags=re.IGNORECASE):
             trozo = re.sub(_ARTICULOS, "", trozo.strip(), flags=re.IGNORECASE).strip(" ,.;")
             if len(trozo) >= 3:
                 pref["excluir"].append(trozo)
@@ -277,7 +297,8 @@ _RELLENO = (
     r"recomiendame|recomiendeme|dame|por favor|algo que|que sea|que tenga|y que"
     r"|i want|i'd like|i would like|i'm looking for|im looking for|looking for|recommend me|give me|please"
     r"|i don't want|i dont want|i do not want"
-    r"|je ne veux pas|je ne veux|je veux|je voudrais|je cherche|conseille-moi|conseillez-moi|donne-moi|s'il (?:te|vous) plait)\b"
+    r"|je ne veux pas|je ne veux|je veux|je voudrais|je cherche|conseille-moi|conseillez-moi|donne-moi|s'il (?:te|vous) plait"
+    r"|ich will|ich mochte(?: lesen)?|ich hatte gern(?:e)?|ich suche|empfiehl mir|gib mir|bitte|etwas,? das)\b"
 )
 
 
@@ -294,7 +315,8 @@ def _limpiar_consulta(texto):
     limpio = re.sub(r"[,.;]{2,}", ",", limpio)
     # Quitar conectores sueltos al principio o al final
     conectores = (r"(?:y|e|o|de|con|que|un|una|el|la|pero|ni|no"
-                  r"|and|or|with|a|an|the|but|of|et|ou|avec|mais|le|les|une|des|du|,|\.|;)")
+                  r"|and|or|with|a|an|the|but|of|et|ou|avec|mais|le|les|une|des|du"
+                  r"|und|oder|mit|aber|ein|eine|einen|der|die|das|von|etwas|,|\.|;)")
     anterior = None
     while anterior != limpio:
         anterior = limpio
