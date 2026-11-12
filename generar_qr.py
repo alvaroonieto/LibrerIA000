@@ -85,6 +85,7 @@ ESCANEA = {
     "es": "Escanea y cuéntale a {lia} qué te apetece leer",
     "en": "Scan and tell {lia} what you'd like to read",
     "fr": "Scanne et dis à {lia} ce que tu as envie de lire",
+    "de": "Scanne und sag {lia}, was du lesen möchtest",
 }
 
 

@@ -28,7 +28,7 @@ LibrerIA/
 │   ├── motor.py            ← busca y ordena los libros
 │   ├── goodreads.py        ← personalización con el CSV de Goodreads
 │   ├── marca.py            ← lee la carpeta personalizacion/
-│   ├── textos.py           ← textos de botones y mensajes en ES / EN / FR
+│   ├── textos.py           ← textos de botones y mensajes en ES / EN / FR / DE
 │   └── voz.py              ← dictado por voz (faster-whisper)
 ├── data/
 │   └── books.csv           ← catálogo en bruto
@@ -87,7 +87,7 @@ Todo está en `personalizacion/`. Después de cambiar algo, recarga la página
 
 **Textos y colores** → `personalizacion/marca.json`
 - `asistente`: nombre de la asistente. `libreria`: nombre que sale arriba y en el cartel.
-- `idiomas`: qué idiomas se ofrecen (`es`, `en`, `fr`). `idioma_por_defecto`: con cuál se abre.
+- `idiomas`: qué idiomas se ofrecen (`es`, `en`, `fr`, `de`). `idioma_por_defecto`: con cuál se abre.
 - `textos` → un bloque por idioma con `titulo`, `subtitulo`, `saludo`, `placeholder`,
   `aviso_librero` y `sugerencias` (2 a 4 botones funcionan bien).
 - `pictogramas`: la lista de botones con dibujo (ver abajo).
@@ -123,7 +123,7 @@ Botón **♿ Accesibilidad** arriba a la derecha (cada persona elige lo suyo; no
 
 | Opción | Qué hace |
 |---|---|
-| Idioma (ES / EN / FR) | Cambia todos los textos. Lía entiende búsquedas en los tres idiomas. |
+| Idioma (ES / EN / FR / DE) | Cambia todos los textos. Lía entiende búsquedas en los cuatro idiomas. |
 | Letra grande | Aumenta todo el texto. |
 | Letra más fácil de leer | Fuente Atkinson Hyperlegible, más espacio entre letras y líneas. |
 | Alto contraste | Blanco y negro con azul oscuro, bordes marcados, sin imagen de fondo. |
@@ -146,6 +146,7 @@ Botón **♿ Accesibilidad** arriba a la derecha (cada persona elige lo suyo; no
 ```powershell
 python generar_qr.py https://la-direccion-de-la-app
 python generar_qr.py https://la-direccion-de-la-app --idioma en   # cartel en inglés
+python generar_qr.py https://la-direccion-de-la-app --idioma de   # cartel en alemán
 ```
 
 Crea `personalizacion/cartel_qr.pdf` (A5, para imprimir), `cartel_qr.png` y `qr.png`
@@ -211,5 +212,5 @@ Después, vuelve a ejecutar `python preparar_datos.py`.
 - Los libros sin número de páginas desaparecen cuando se filtra por páginas.
 - Las exclusiones ("que no sea X") penalizan los libros parecidos a X; no los eliminan del todo.
 - Las palabras vagas usan valores fijos (corto = máx. 250 págs.; se cambian en `config.py`).
-- Las reglas en inglés y francés son más básicas que en español.
+- Las reglas en inglés, francés y alemán son más básicas que en español.
 - El botón 🔊 depende de las voces instaladas en el dispositivo (en móviles y Chrome suele haber de sobra).
