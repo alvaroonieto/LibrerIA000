@@ -2,7 +2,7 @@
   "asistente": "Lía",
   "libreria": "Tu librería",
   "idioma_por_defecto": "es",
-  "idiomas": ["es", "en", "fr"],
+  "idiomas": ["es", "en", "fr", "de"],
 
   "textos": {
     "es": {
@@ -28,22 +28,30 @@
       "placeholder": "Écris ici ce que tu as envie de lire…",
       "aviso_librero": "Tu préfères parler à quelqu'un ? Viens au comptoir : nous serons ravis de t'aider.",
       "sugerencias": ["Un livre court pour décompresser", "Un polar prenant", "Un classique très bien noté"]
+    },
+    "de": {
+      "titulo": "Frag Lía",
+      "subtitulo": "Deine Buchhändlerin des Vertrauens. Erzähl ihr, was du lesen möchtest, und sie sucht unter den Büchern, die wir hier haben.",
+      "saludo": "Hallo! Ich bin Lía. Sag mir, worauf du Lust hast: ein Genre, ein Thema, ein Buch, das dir gefallen hat… Du kannst mir auch sagen, wie viele Seiten oder was du NICHT willst.",
+      "placeholder": "Schreib hier, was du lesen möchtest…",
+      "aviso_librero": "Möchtest du lieber mit einem Menschen sprechen? Komm an die Theke: Wir helfen dir gern.",
+      "sugerencias": ["Etwas Kurzes zum Abschalten", "Ein packender Krimi", "Ein sehr gut bewerteter Klassiker"]
     }
   },
 
   "pictogramas": [
-    {"id": "misterio",        "emoji": "🔍", "es": "Misterio",         "en": "Mystery",         "fr": "Mystère",          "busqueda": "novela de misterio, detectives e investigación de un crimen"},
-    {"id": "amor",            "emoji": "❤️", "es": "Amor",             "en": "Love",            "fr": "Amour",            "busqueda": "novela romántica, historia de amor"},
-    {"id": "aventura",        "emoji": "🧭", "es": "Aventura",         "en": "Adventure",       "fr": "Aventure",         "busqueda": "novela de aventuras, viajes y exploración"},
-    {"id": "fantasia",        "emoji": "🐉", "es": "Fantasía",         "en": "Fantasy",         "fr": "Fantasy",          "busqueda": "fantasía épica con magia y dragones"},
-    {"id": "ciencia_ficcion", "emoji": "🚀", "es": "Ciencia ficción",  "en": "Science fiction", "fr": "Science-fiction",  "busqueda": "ciencia ficción, espacio, futuro y tecnología"},
-    {"id": "miedo",           "emoji": "👻", "es": "Miedo",            "en": "Scary",           "fr": "Peur",             "busqueda": "novela de terror y miedo"},
-    {"id": "risa",            "emoji": "😂", "es": "Para reír",        "en": "Funny",           "fr": "Pour rire",        "busqueda": "libro de humor, divertido, para reír"},
-    {"id": "historia",        "emoji": "🏛️", "es": "Historia",         "en": "History",         "fr": "Histoire",         "busqueda": "novela histórica o libro de historia"},
-    {"id": "infantil",        "emoji": "🧸", "es": "Para niños",       "en": "For children",    "fr": "Pour enfants",     "busqueda": "libro infantil para niños"},
-    {"id": "poesia",          "emoji": "🪶", "es": "Poesía",           "en": "Poetry",          "fr": "Poésie",           "busqueda": "poesía y poemas"},
-    {"id": "vidas",           "emoji": "👤", "es": "Vidas reales",     "en": "Real lives",      "fr": "Vies réelles",     "busqueda": "biografía o memorias de una persona real"},
-    {"id": "corto",           "emoji": "📗", "es": "Libro corto",      "en": "Short book",      "fr": "Livre court",      "busqueda": "libro corto, fácil de leer"}
+    {"id": "misterio",        "emoji": "🔍", "es": "Misterio",         "en": "Mystery",         "fr": "Mystère",          "de": "Krimi",           "busqueda": "novela de misterio, detectives e investigación de un crimen"},
+    {"id": "amor",            "emoji": "❤️", "es": "Amor",             "en": "Love",            "fr": "Amour",            "de": "Liebe",           "busqueda": "novela romántica, historia de amor"},
+    {"id": "aventura",        "emoji": "🧭", "es": "Aventura",         "en": "Adventure",       "fr": "Aventure",         "de": "Abenteuer",       "busqueda": "novela de aventuras, viajes y exploración"},
+    {"id": "fantasia",        "emoji": "🐉", "es": "Fantasía",         "en": "Fantasy",         "fr": "Fantasy",          "de": "Fantasy",         "busqueda": "fantasía épica con magia y dragones"},
+    {"id": "ciencia_ficcion", "emoji": "🚀", "es": "Ciencia ficción",  "en": "Science fiction", "fr": "Science-fiction",  "de": "Science-Fiction", "busqueda": "ciencia ficción, espacio, futuro y tecnología"},
+    {"id": "miedo",           "emoji": "👻", "es": "Miedo",            "en": "Scary",           "fr": "Peur",             "de": "Grusel",          "busqueda": "novela de terror y miedo"},
+    {"id": "risa",            "emoji": "😂", "es": "Para reír",        "en": "Funny",           "fr": "Pour rire",        "de": "Zum Lachen",      "busqueda": "libro de humor, divertido, para reír"},
+    {"id": "historia",        "emoji": "🏛️", "es": "Historia",         "en": "History",         "fr": "Histoire",         "de": "Geschichte",      "busqueda": "novela histórica o libro de historia"},
+    {"id": "infantil",        "emoji": "🧸", "es": "Para niños",       "en": "For children",    "fr": "Pour enfants",     "de": "Für Kinder",      "busqueda": "libro infantil para niños"},
+    {"id": "poesia",          "emoji": "🪶", "es": "Poesía",           "en": "Poetry",          "fr": "Poésie",           "de": "Gedichte",        "busqueda": "poesía y poemas"},
+    {"id": "vidas",           "emoji": "👤", "es": "Vidas reales",     "en": "Real lives",      "fr": "Vies réelles",     "de": "Echte Leben",     "busqueda": "biografía o memorias de una persona real"},
+    {"id": "corto",           "emoji": "📗", "es": "Libro corto",      "en": "Short book",      "fr": "Livre court",      "de": "Kurzes Buch",     "busqueda": "libro corto, fácil de leer"}
   ],
 
   "colores": {
